@@ -1,0 +1,12 @@
+with-expecter: True
+inpackage: True
+dir: "{{.InterfaceDir}}"
+mockname: "Mock{{.InterfaceName}}"
+outpkg: "{{.PackageName}}"
+filename: "mock_{{.InterfaceName | camelcase | firstLower}}_test.go"
+#all: True
+#recursive: True
+packages:
+  github.com/opplieam/bb-product-server/internal/product:
+    interfaces:
+      Storer:

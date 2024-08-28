@@ -2,10 +2,12 @@ package product
 
 import (
 	"context"
-	"log"
+	"errors"
 
 	pb "github.com/opplieam/bb-grpc/protogen/go/product"
 	"github.com/opplieam/bb-product-server/internal/store"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -25,7 +27,12 @@ func NewServer(s Storer) *Server {
 func (s *Server) GetProductsByUser(ctx context.Context, req *pb.GetProductsByUserReq) (*pb.GetProductsByUserRes, error) {
 	result, err := s.Storer.GetAllProducts(req.UserId)
 	if err != nil {
-		log.Fatalln(err)
+		switch {
+		case errors.Is(err, store.ErrRecordNotFound):
+			return nil, status.Error(codes.NotFound, err.Error())
+		default:
+			return nil, status.Error(codes.Internal, err.Error())
+		}
 	}
 
 	var products []*pb.Products

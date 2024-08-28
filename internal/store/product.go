@@ -57,7 +57,7 @@ func (s *ProductStore) GetAllProducts(userID uint32) ([]ResultGetAllProducts, er
 		WHERE(UserSubProduct.UserID.EQ(Int32(int32(userID))))
 	err := stmt.Query(s.DB, &dest)
 	if err != nil {
-		return nil, err
+		return nil, DBTransformError(err)
 	}
 	return dest, nil
 }
