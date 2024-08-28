@@ -4,10 +4,12 @@ import (
 	"context"
 	"database/sql"
 	"log"
+	"log/slog"
 	"net"
 	"os"
 	"time"
 
+	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/logging"
 	pb "github.com/opplieam/bb-grpc/protogen/go/product"
 	"github.com/opplieam/bb-product-server/internal/product"
 	"github.com/opplieam/bb-product-server/internal/store"
@@ -34,6 +36,8 @@ func setupDB() (*sql.DB, error) {
 	return db, nil
 }
 
+var build = "dev"
+
 func main() {
 	lis, err := net.Listen("tcp", ":3031")
 	if err != nil {
@@ -44,8 +48,18 @@ func main() {
 		log.Fatalf("failed to setup database: %v", err)
 	}
 
-	// TODO: Add logging interceptor
-	grpcServer := grpc.NewServer()
+	// Add Logger
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+	logger = logger.With("service", "bb-product-server", "build", build)
+
+	opts := []logging.Option{
+		logging.WithLogOnEvents(logging.StartCall, logging.FinishCall),
+	}
+	grpcServer := grpc.NewServer(
+		grpc.ChainUnaryInterceptor(
+			logging.UnaryServerInterceptor(InterceptorLogger(logger), opts...),
+		),
+	)
 	pb.RegisterProductServiceServer(grpcServer, product.NewServer(store.NewProductStore(db)))
 	log.Printf("Starting gRPC Server at %v\n", lis.Addr())
 
@@ -53,4 +67,10 @@ func main() {
 		log.Fatalf("failed to serve: %v", err)
 	}
 
+}
+
+func InterceptorLogger(l *slog.Logger) logging.Logger {
+	return logging.LoggerFunc(func(ctx context.Context, lvl logging.Level, msg string, fields ...any) {
+		l.Log(ctx, slog.Level(lvl), msg, fields...)
+	})
 }
