@@ -39,6 +39,7 @@ func setupDB() (*sql.DB, error) {
 var build = "dev"
 
 func main() {
+	// TODO: Add health check
 	lis, err := net.Listen("tcp", ":3031")
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
