@@ -40,6 +40,7 @@ var build = "dev"
 
 func main() {
 	// TODO: Add health check
+	// TODO: Make address as environment variable
 	lis, err := net.Listen("tcp", ":3031")
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
