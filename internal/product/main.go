@@ -3,9 +3,12 @@ package product
 import (
 	"context"
 	"errors"
+	"strconv"
 
 	pb "github.com/opplieam/bb-grpc/protogen/go/product"
 	"github.com/opplieam/bb-product-server/internal/store"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -17,14 +20,24 @@ type Storer interface {
 
 type Server struct {
 	Storer Storer
+	Tracer trace.Tracer
 	pb.UnimplementedProductServiceServer
 }
 
-func NewServer(s Storer) *Server {
-	return &Server{Storer: s}
+func NewServer(s Storer, tracer trace.Tracer) *Server {
+	return &Server{
+		Storer: s,
+		Tracer: tracer,
+	}
 }
 
 func (s *Server) GetProductsByUser(ctx context.Context, req *pb.GetProductsByUserReq) (*pb.GetProductsByUserRes, error) {
+	_, span := s.Tracer.Start(
+		ctx,
+		"GetProductsByUser",
+		trace.WithAttributes(attribute.String("user_id", strconv.Itoa(int(req.UserId)))),
+	)
+	defer span.End()
 	result, err := s.Storer.GetAllProducts(req.UserId)
 	if err != nil {
 		switch {
