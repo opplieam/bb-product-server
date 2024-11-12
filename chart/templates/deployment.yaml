@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: product-server-deployment
+  namespace: buy-better
+
+spec:
+  selector:
+    matchLabels:
+      app: product-server
+  replicas: {{ .Values.replicas }}
+  template:
+    metadata:
+      labels:
+        app: product-server
+    spec:
+      terminationGracePeriodSeconds: {{ .Values.terminationGracePeriodSeconds }}
+      containers:
+        - name: product-server
+          image: {{ .Values.image }}
+          imagePullPolicy: {{ .Values.imagePullPolicy }}
+          resources:
+            requests:
+              cpu: {{ .Values.resource.cpuRequest }}
+            limits:
+              cpu: {{ .Values.resource.cpuLimit }}
+          ports:
+            - name: product-port
+              containerPort: 3031
+
+          env:
+            - name: GOMAXPROCS
+              valueFrom:
+                resourceFieldRef:
+                  resource: limits.cpu
+            - name: KUBERNETES_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: KUBERNETES_POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: KUBERNETES_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: KUBERNETES_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+
+            - name: WEB_SERVICE_ENV
+              value: {{ .Values.env.webService }}
+            - name: DB_DSN # dev local db is not sensitive
+              value: {{ .Values.env.dbDSN }}
+            - name: DB_DRIVER
+              value: "postgres"

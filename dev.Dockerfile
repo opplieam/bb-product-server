@@ -3,11 +3,10 @@ ENV CGO_ENABLED 0
 ARG BUILD_REF
 
 # Copy the source code into the container.
-RUN go env -w GOCACHE=/go-cache
 COPY . /service
 # Build the service binary.
 WORKDIR /service/cmd/server
-RUN --mount=type=cache,target=/go-cache go build -ldflags "-X main.build=${BUILD_REF}" -o server
+RUN --mount=type=cache,target=/go/pkg/mod go build -ldflags "-X main.build=${BUILD_REF}" -o server
 
 # Run the Go Binary in Alpine.
 FROM alpine:3.19

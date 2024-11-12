@@ -1,0 +1,20 @@
+image: opplieam/bb-product-server:cluster-dev
+imagePullPolicy: Never
+
+replicas: 1
+terminationGracePeriodSeconds: 60
+
+
+livenessInitialDelaySeconds: 2
+livenessPeriodSeconds: 5
+
+readinessInitialDelaySeconds: 5
+readinessPeriodSeconds: 10
+
+resource:
+  cpuRequest: "500m"
+  cpuLimit: "500m"
+
+env:
+  webService: "cluster-dev"
+  dbDSN: "postgresql://postgres:admin1234@host.minikube.internal:5433/buy-better-core?sslmode=disable"

@@ -44,12 +44,18 @@ docker-build-prod:
 
 kus-dev:
 	kubectl apply -k k8s/dev/
+helm-dev:
+	helm upgrade --install -f ./chart/dev.values.yaml bb-product-server ./chart
 dev-restart:
 	kubectl rollout restart deployment $(DEPLOYMENT_NAME) --namespace=$(NAMESPACE)
 dev-stop:
 	kubectl delete -k k8s/dev/
+dev-helm-stop:
+	helm uninstall bb-product-server
 
 dev-apply: tidy docker-build-dev kus-dev
+
+dev-apply-helm: tidy docker-build-dev helm-dev
 
 jet-gen:
 	jet -dsn=$(DB_DSN) -path=./.gen
