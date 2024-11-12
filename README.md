@@ -22,6 +22,7 @@ example `GetProductsByUser` etc.
 ├── .github
 │   ├── workflows
 ├── bin                 # go binary
+├── chart               # helm chart
 ├── cmd
 │   └── server          # main package for product service
 ├── internal
@@ -37,6 +38,7 @@ example `GetProductsByUser` etc.
 - docker / docker-compose
 - minikube
 - kubectl / kustomize
+- helm
 #### Database tools
 - CLI [jet-db](https://github.com/go-jet/jet?tab=readme-ov-file#installation)
 #### Testing tools
