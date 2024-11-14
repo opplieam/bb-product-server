@@ -11,6 +11,7 @@ import (
 	dbStore "github.com/opplieam/bb-product-server/internal/store"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
+	"go.opentelemetry.io/otel/sdk/trace"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials/insecure"
@@ -90,7 +91,9 @@ func (s *ProductUnitTestSuite) TestGetProductsByUserUnit() {
 
 			lis := bufconn.Listen(1024 * 1024)
 			gServer := grpc.NewServer()
-			pb.RegisterProductServiceServer(gServer, NewServer(mockStore))
+			tp := trace.NewTracerProvider()
+			mt := tp.Tracer("test")
+			pb.RegisterProductServiceServer(gServer, NewServer(mockStore, mt))
 
 			go func() {
 				err := gServer.Serve(lis)

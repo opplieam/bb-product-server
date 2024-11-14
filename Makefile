@@ -42,6 +42,18 @@ docker-build-prod:
     	--build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` \
     	.
 
+docker-push:
+	docker push $(SERVICE_IMAGE)
+
+docker-build-push: docker-build-prod docker-push
+
+gen-prod-chart:
+	rm -rf .genmanifest
+	helm template $(SERVICE_NAME) chart -f chart/dev.values.yaml \
+		--set image=$(SERVICE_IMAGE) \
+		--set imagePullPolicy=Always \
+		--output-dir .genmanifest
+
 kus-dev:
 	kubectl apply -k k8s/dev/
 helm-dev:
