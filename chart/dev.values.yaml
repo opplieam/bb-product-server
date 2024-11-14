@@ -18,3 +18,4 @@ resource:
 env:
   webService: "cluster-dev"
   dbDSN: "postgresql://postgres:admin1234@host.minikube.internal:5433/buy-better-core?sslmode=disable"
+  jaegerEndpoint: "http://host.minikube.internal:14268/api/traces"

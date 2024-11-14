@@ -56,3 +56,5 @@ spec:
               value: {{ .Values.env.dbDSN }}
             - name: DB_DRIVER
               value: "postgres"
+            - name: OTEL_EXPORTER_JAEGER_ENDPOINT
+              value: {{ .Values.env.jaegerEndpoint }}
