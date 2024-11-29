@@ -7,6 +7,7 @@ import (
 
 	pb "github.com/opplieam/bb-grpc/protogen/go/product"
 	"github.com/opplieam/bb-product-server/internal/store"
+	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
 	"google.golang.org/grpc/codes"
@@ -24,10 +25,10 @@ type Server struct {
 	pb.UnimplementedProductServiceServer
 }
 
-func NewServer(s Storer, tracer trace.Tracer) *Server {
+func NewServer(s Storer) *Server {
 	return &Server{
 		Storer: s,
-		Tracer: tracer,
+		Tracer: otel.GetTracerProvider().Tracer("Product"),
 	}
 }
 
@@ -39,6 +40,7 @@ func (s *Server) GetProductsByUser(ctx context.Context, req *pb.GetProductsByUse
 	)
 	defer span.End()
 	result, err := s.Storer.GetAllProducts(req.UserId)
+	span.SetAttributes(attribute.Int("user_id", int(req.UserId)))
 	if err != nil {
 		switch {
 		case errors.Is(err, store.ErrRecordNotFound):
