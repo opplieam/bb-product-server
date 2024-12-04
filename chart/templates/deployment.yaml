@@ -52,8 +52,11 @@ spec:
 
             - name: WEB_SERVICE_ENV
               value: {{ .Values.env.webService }}
-            - name: DB_DSN # dev local db is not sensitive
-              value: {{ .Values.env.dbDSN }}
+            - name: DB_DSN
+              valueFrom:
+                secretKeyRef:
+                  name: core-api-secret
+                  key: DB_DSN
             - name: DB_DRIVER
               value: "postgres"
             - name: OTEL_EXPORTER_JAEGER_ENDPOINT
