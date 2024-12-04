@@ -54,6 +54,12 @@ gen-prod-chart:
 		--set imagePullPolicy=Always \
 		--output-dir .genmanifest
 
+helm-prod:
+	helm upgrade --install -f ./chart/prod.values.yaml \
+	--set image=$(SERVICE_IMAGE) \
+	--set imagePullPolicy=Always \
+	bb-product-server ./chart
+
 kus-dev:
 	kubectl apply -k k8s/dev/
 helm-dev:
