@@ -1,0 +1,29 @@
+# Namespace
+namespace: buy-better
+
+# Service
+service:
+  type: ClusterIP
+  port: 3031
+
+# Autoscaling
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 90
+#  targetMemoryUtilizationPercentage: 90
+
+replicaCount: 1
+
+# Container Image
+image:
+  repository: opplieam/bb-product-server
+  pullPolicy: Never
+  tag: "cluster-dev"
+imagePullSecrets: []
+
+
+env:
+  webService: "cluster-dev"
+  jaegerEndpoint: "http://host.minikube.internal:14268/api/traces"

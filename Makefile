@@ -49,21 +49,19 @@ docker-build-push: docker-build-prod docker-push
 
 gen-prod-chart:
 	rm -rf .genmanifest
-	helm template $(SERVICE_NAME) chart -f chart/values.yaml \
-		--set image=$(SERVICE_IMAGE) \
-		--set imagePullPolicy=Always \
+	helm template $(SERVICE_NAME) ./deploy/bb-product-server -f ./deploy/bb-product-server/prod.values.yaml \
+		--set image.tag=$(VERSION) \
 		--output-dir .genmanifest
 
 helm-prod:
-	helm upgrade --install -f ./chart/values.yaml \
-	--set image=$(SERVICE_IMAGE) \
-	--set imagePullPolicy=Always \
-	bb-product-server ./chart
+	helm upgrade --install -f ./deploy/bb-product-server/prod.values.yaml \
+	--set image.tag=$(VERSION) \
+	bb-product-server ./deploy/bb-product-server
 
 kus-dev:
 	kubectl apply -k k8s/dev/
 helm-dev:
-	helm upgrade --install -f ./chart/values.yaml bb-product-server ./chart
+	helm upgrade --install -f ./deploy/bb-product-server/values.yaml bb-product-server ./deploy/bb-product-server
 dev-restart:
 	kubectl rollout restart deployment $(DEPLOYMENT_NAME) --namespace=$(NAMESPACE)
 dev-stop:

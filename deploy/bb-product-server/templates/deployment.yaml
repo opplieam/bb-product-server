@@ -1,32 +1,34 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: product-server-deployment
-  namespace: buy-better
-
+  name: {{ include "bb-product-server.fullname" . }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "bb-product-server.labels" . | nindent 4 }}
 spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
   selector:
     matchLabels:
-      app: product-server
-  replicas: {{ .Values.replicas }}
+      {{- include "bb-product-server.selectorLabels" . | nindent 6 }}
   template:
     metadata:
-      labels:
-        app: product-server
+      name: {{ include "bb-product-server.fullname" . }}
+      labels: {{- include "bb-product-server.labels" . | nindent 8 }}
     spec:
-      terminationGracePeriodSeconds: {{ .Values.terminationGracePeriodSeconds }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       containers:
-        - name: product-server
-          image: {{ .Values.image }}
-          imagePullPolicy: {{ .Values.imagePullPolicy }}
-          resources:
-            requests:
-              cpu: {{ .Values.resource.cpuRequest }}
-            limits:
-              cpu: {{ .Values.resource.cpuLimit }}
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
-            - name: product-port
-              containerPort: 3031
+            - name: grpc
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
 
           env:
             - name: GOMAXPROCS
