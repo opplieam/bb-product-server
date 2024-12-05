@@ -21,8 +21,9 @@ example `GetProductsByUser` etc.
 │   ├── buy-better-core
 ├── .github
 │   ├── workflows
-├── bin                 # go binary
-├── chart               # helm chart
+├── bin                   # go binary
+├── deploy                # helm chart
+│   ├── bb-product-server # project helm chart
 ├── cmd
 │   └── server          # main package for product service
 ├── internal
